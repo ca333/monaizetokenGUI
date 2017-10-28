@@ -71,7 +71,7 @@ public class ZCashInstallationObserver
 		if (!dir.exists() || dir.isFile())
 		{
 			throw new InstallationDetectionException(
-				"The ZCash installation directory " + installDir + " does not exist or is not " +
+				"The MNZ installation directory " + installDir + " does not exist or is not " +
 			    "a directory or is otherwise inaccessible to the wallet!");
 		}
 
@@ -84,26 +84,26 @@ public class ZCashInstallationObserver
 			zcashcli = OSUtil.findZCashCommand(OSUtil.getZCashCli());
 		}
 
-		Log.info("Using ZCash utilities: " +
-		                   "zcashd: "    + ((zcashd != null) ? zcashd.getCanonicalPath() : "<MISSING>") + ", " +
-		                   "zcash-cli: " + ((zcashcli != null) ? zcashcli.getCanonicalPath() : "<MISSING>"));
+		System.out.println("Using MNZ utilities: " +
+		                   "mnzd: "    + ((zcashd != null) ? zcashd.getCanonicalPath() : "<MISSING>") + ", " +
+		                   "mnz-cli: " + ((zcashcli != null) ? zcashcli.getCanonicalPath() : "<MISSING>"));
 
 		if ((zcashd == null) || (zcashcli == null) || (!zcashd.exists()) || (!zcashcli.exists()))
 		{
 			throw new InstallationDetectionException(
-				"The ZCash GUI Wallet installation directory " + installDir + " needs\nto contain " +
-				"the command line utilities zcashd and zcash-cli. At least one of them is missing! \n" +
-				"Please place files ZCashSwingWalletUI.jar, " + OSUtil.getZCashCli() + ", " + 
+				"The MNZ GUI Wallet installation directory " + installDir + " needs\nto contain " +
+				"the command line utilities komodod and mnz-cli. At least one of them is missing! \n" +
+				"Please place files MonaizeWalletUI.jar, " + OSUtil.getZCashCli() + ", " +
 				OSUtil.getZCashd() + " in the same directory.");
 		}
 	}
 
-	
+
 	public synchronized DaemonInfo getDaemonInfo()
 			throws IOException, InterruptedException
 	{
 		OS_TYPE os = OSUtil.getOSType();
-		
+
 		if (os == OS_TYPE.WINDOWS)
 		{
 			return getDaemonInfoForWindowsOS();
@@ -112,7 +112,7 @@ public class ZCashInstallationObserver
 			return getDaemonInfoForUNIXLikeOS();
 		}
 	}
-	
+
 
 	// So far tested on Mac OS X and Linux - expected to work on other UNIXes as well
 	private synchronized DaemonInfo getDaemonInfoForUNIXLikeOS()
@@ -160,7 +160,7 @@ public class ZCashInstallationObserver
 					} catch (NumberFormatException nfe) { /* TODO: Log or handle exception */ };
 				} else if (i == 10)
 				{
-					if ((token.equals("zcashd")) || (token.endsWith("/zcashd")))
+					if ((token.equals("mnzd")) || (token.endsWith("/mnzd")))
 					{
 						info.status = DAEMON_STATUS.RUNNING;
 						foundZCash = true;
@@ -184,8 +184,8 @@ public class ZCashInstallationObserver
 
 		return info;
 	}
-	
-	
+
+
 	private synchronized DaemonInfo getDaemonInfoForWindowsOS()
 		throws IOException, InterruptedException
 	{
@@ -213,12 +213,12 @@ public class ZCashInstallationObserver
 				{
 					break;
 				}
-				
+
 				if (token.startsWith("\""))
 				{
 					token = token.substring(1);
 				}
-				
+
 				if (token.endsWith("\""))
 				{
 					token = token.substring(0, token.length() - 1);
@@ -226,7 +226,7 @@ public class ZCashInstallationObserver
 
 				if (i == 0)
 				{
-					if (token.equals("zcashd.exe") || token.equals("zcashd"))
+					if (token.equals("mnzd.exe") || token.equals("mnzd"))
 					{
 						info.status = DAEMON_STATUS.RUNNING;
 						foundZCash = true;
@@ -242,7 +242,7 @@ public class ZCashInstallationObserver
 							size = size.substring(0, size.length() - 1);
 						}
 					} catch (NumberFormatException nfe) { /* TODO: Log or handle exception */ };
-				} 
+				}
 			} // End parsing row
 
 			if (foundZCash)
@@ -253,9 +253,9 @@ public class ZCashInstallationObserver
 				} catch (NumberFormatException nfe)
 				{
 					info.residentSizeMB = 0;
-					Log.error("Error: could not find the numeric memory size of zcashd: " + size);
+					System.out.println("Error: could not find the numeric memory size of mnzd: " + size);
 				};
-				
+
 				break;
 			}
 		}
@@ -269,7 +269,7 @@ public class ZCashInstallationObserver
 
 		return info;
 	}
-	
+
 
 	public static class InstallationDetectionException
 		extends IOException

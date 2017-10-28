@@ -53,7 +53,7 @@ public class StatusUpdateErrorReporter
 	
 	public void reportError(Exception e, boolean isDueToAutomaticUpdate)
 	{
-		Log.error("Unexpected error: ", e);
+		e.printStackTrace();
 		
 		// TODO: Error logging
 		long time = System.currentTimeMillis();

@@ -87,7 +87,7 @@ public class TransactionTable
 						String txID = TransactionTable.this.getModel().getValueAt(lastRow, 6).toString();
 						txID = txID.replaceAll("\"", ""); // In case it has quotes
 						
-						Log.info("Transaction ID for detail dialog is: " + txID);
+						System.out.println("Transaction ID for detail dialog is: " + txID);
 						Map<String, String> details = caller.getRawTransactionDetails(txID);
 						String rawTrans = caller.getRawTransaction(txID);
 						
@@ -95,7 +95,7 @@ public class TransactionTable
 						dd.setVisible(true);
 					} catch (Exception ex)
 					{
-						Log.error("Unexpected error: ", ex);
+						ex.printStackTrace();
 						// TODO: report exception to user
 					}
 				} else
@@ -122,13 +122,13 @@ public class TransactionTable
 						String txID = TransactionTable.this.getModel().getValueAt(lastRow, 6).toString();
 						txID = txID.replaceAll("\"", ""); // In case it has quotes
 						
-						Log.info("Transaction ID for block explorer is: " + txID);
+						System.out.println("Transaction ID for block explorer is: " + txID);
 						// https://explorer.zcha.in/transactions/<ID>
 						Desktop.getDesktop().browse(
 							new URL("https://explorer.zcha.in/transactions/" + txID).toURI());
 					} catch (Exception ex)
 					{
-						Log.error("Unexpected error: ", ex);
+						ex.printStackTrace();
 						// TODO: report exception to user
 					}
 				} else
@@ -173,13 +173,13 @@ public class TransactionTable
 						}
 						
 						
-						Log.info("Transaction ID for Memo field is: " + txID);
-						Log.info("Account for Memo field is: " + acc);
+						System.out.println("Transaction ID for Memo field is: " + txID);
+						System.out.println("Account for Memo field is: " + acc);
 						parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 						// TODO: some day support outgoing Z transactions
  						String MemoField = caller.getMemoField(acc, txID);
  						parent.setCursor(oldCursor);
- 						Log.info("Memo field is: " + MemoField);
+ 						System.out.println("Memo field is: " + MemoField);
  						
  						if (MemoField != null)
  						{
@@ -198,7 +198,7 @@ public class TransactionTable
 					} catch (Exception ex)
 					{
 						parent.setCursor(oldCursor);
-						Log.error("", ex);
+						ex.printStackTrace();
 						// TODO: report exception to user
 					}
 				} else
@@ -231,7 +231,7 @@ public class TransactionTable
 			JPanel tempPanel = new JPanel(new BorderLayout(0, 0));
 			tempPanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 			JLabel infoLabel = new JLabel(
-					"<html><span style=\"font-size:0.85em;\">" +
+					"<html><span style=\"font-size:9px;\">" +
 					"The table shows the information about the transaction with technical details as " +
 					"they appear at ZCash network level." +
 				    "</span>");

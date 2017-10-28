@@ -106,7 +106,7 @@ public class WalletTabPanel
 				} catch (InterruptedException ie)
 				{
 					// One of the rare cases where we do nothing
-					Log.error("Unexpected error: ", ie);
+					ie.printStackTrace();
 				}
 				
 				endWait = System.currentTimeMillis();

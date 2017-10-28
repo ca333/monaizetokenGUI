@@ -46,28 +46,28 @@ public class OSUtil
 	{
 		LINUX, WINDOWS, MAC_OS, FREE_BSD, OTHER_BSD, SOLARIS, AIX, OTHER_UNIX, OTHER_OS
 	};
-	
-	
+
+
 	public static boolean isUnixLike(OS_TYPE os)
 	{
-		return os == OS_TYPE.LINUX || os == OS_TYPE.MAC_OS || os == OS_TYPE.FREE_BSD || 
-			   os == OS_TYPE.OTHER_BSD || os == OS_TYPE.SOLARIS || os == OS_TYPE.AIX || 
+		return os == OS_TYPE.LINUX || os == OS_TYPE.MAC_OS || os == OS_TYPE.FREE_BSD ||
+			   os == OS_TYPE.OTHER_BSD || os == OS_TYPE.SOLARIS || os == OS_TYPE.AIX ||
 			   os == OS_TYPE.OTHER_UNIX;
 	}
-	
-	
+
+
 	public static boolean isHardUnix(OS_TYPE os)
 	{
-		return os == OS_TYPE.FREE_BSD || 
-			   os == OS_TYPE.OTHER_BSD || os == OS_TYPE.SOLARIS || 
+		return os == OS_TYPE.FREE_BSD ||
+			   os == OS_TYPE.OTHER_BSD || os == OS_TYPE.SOLARIS ||
 			   os == OS_TYPE.AIX || os == OS_TYPE.OTHER_UNIX;
 	}
-	
-	
+
+
 	public static OS_TYPE getOSType()
 	{
 		String name = System.getProperty("os.name").toLowerCase(Locale.ROOT);
-		
+
 		if (name.contains("linux"))
 		{
 			return OS_TYPE.LINUX;
@@ -97,34 +97,34 @@ public class OSUtil
 			return OS_TYPE.OTHER_OS;
 		}
 	}
-	
-	
-	// Returns the name of the zcashd server - may vary depending on the OS.
+
+
+	// Returns the name of the komodod server - may vary depending on the OS.
 	public static String getZCashd()
 	{
-		String zcashd = "zcashd";
-		
+		String zcashd = "mnzd";
+
 		OS_TYPE os = getOSType();
 		if (os == OS_TYPE.WINDOWS)
 		{
 			zcashd += ".exe";
 		}
-		
+
 		return zcashd;
 	}
-	
-	
-	// Returns the name of the zcash-cli tool - may vary depending on the OS.
+
+
+	// Returns the name of the komodo-cli tool - may vary depending on the OS.
 	public static String getZCashCli()
 	{
-		String zcashcli = "zcash-cli";
-		
+		String zcashcli = "mnz-cli";
+
 		OS_TYPE os = getOSType();
 		if (os == OS_TYPE.WINDOWS)
 		{
 			zcashcli += ".exe";
 		}
-		
+
 		return zcashcli;
 	}
 
@@ -135,7 +135,7 @@ public class OSUtil
 	{
 		// TODO: this way of finding the dir is JAR name dependent - tricky, may not work
 		// if program is repackaged as different JAR!
-		final String JAR_NAME = "ZCashSwingWalletUI.jar";
+		final String JAR_NAME = "MonaizeWalletUI-release.jar";
 		String cp = System.getProperty("java.class.path");
 		if ((cp != null) && (cp.indexOf(File.pathSeparator) == -1) &&
 			(cp.endsWith(JAR_NAME)))
@@ -164,8 +164,8 @@ public class OSUtil
 
 		return new File(".").getCanonicalPath();
 	}
-	
-	
+
+
 	public static File getUserHomeDirectory()
 		throws IOException
 	{
@@ -177,44 +177,77 @@ public class OSUtil
 		throws IOException
 	{
 		OS_TYPE os = getOSType();
-		
+
 		if (os == OS_TYPE.MAC_OS)
 		{
-			return new File(System.getProperty("user.home") + "/Library/Application Support/Zcash").getCanonicalPath();
+			return new File(System.getProperty("user.home") + "/Library/Application Support/Komodo/MNZ").getCanonicalPath();
 		} else if (os == OS_TYPE.WINDOWS)
 		{
-			return new File(System.getenv("APPDATA") + "\\Zcash").getCanonicalPath();
+			return new File(System.getenv("APPDATA") + "\\Komodo\\MNZ").getCanonicalPath();
 		} else
 		{
-			return new File(System.getProperty("user.home") + "/.zcash").getCanonicalPath();
+			return new File(System.getProperty("user.home") + "/.komodo/MNZ").getCanonicalPath();
 		}
 	}
 
+	public static String getConfigFile()
+		throws IOException
+	{
+		OS_TYPE os = getOSType();
 
-	// Directory with program settings to store as well as logging
+		if (os == OS_TYPE.MAC_OS)
+		{
+			return "MNZ.conf";
+		} else if (os == OS_TYPE.WINDOWS)
+		{
+			return "MNZ.conf";
+		} else
+		{
+			return "MNZ.conf";
+		}
+	}
+
+	public static String getZcashParamsDirectory()
+		throws IOException
+	{
+		OS_TYPE os = getOSType();
+
+		if (os == OS_TYPE.MAC_OS)
+		{
+			return new File(System.getProperty("user.home") + "/Library/Application Support/ZcashParams").getCanonicalPath();
+		} else if (os == OS_TYPE.WINDOWS)
+		{
+			return new File(System.getenv("APPDATA") + "\\ZcashParams").getCanonicalPath();
+		} else
+		{
+			return new File(System.getProperty("user.home") + "/.zcash-params").getCanonicalPath();
+		}
+	}
+
+	// Directory with program settings to store
 	public static String getSettingsDirectory()
 		throws IOException
 	{
 	    File userHome = new File(System.getProperty("user.home"));
 	    File dir;
 	    OS_TYPE os = getOSType();
-	    
+
 	    if (os == OS_TYPE.MAC_OS)
 	    {
-	        dir = new File(userHome, "Library/Application Support/ZCashSwingWalletUI");
+	        dir = new File(userHome, "Library/Application Support/MonaizeWalletUI");
 	    } else if (os == OS_TYPE.WINDOWS)
 		{
-			dir = new File(System.getenv("LOCALAPPDATA") + "\\ZCashSwingWalletUI");
+			dir = new File(System.getenv("LOCALAPPDATA") + "\\MonaizeWalletUI");
 		} else
 	    {
-	        dir = new File(userHome.getCanonicalPath() + File.separator + ".ZCashSwingWalletUI");
+	        dir = new File(userHome.getCanonicalPath() + File.separator + ".MonaizeWalletUI");
 	    }
-	    
+
 		if (!dir.exists())
 		{
 			if (!dir.mkdirs())
 			{
-				Log.warning("Could not create settings directory: " + dir.getCanonicalPath());
+				System.out.println("WARNING: Could not create settings directory: " + dir.getCanonicalPath());
 			}
 		}
 
@@ -226,11 +259,11 @@ public class OSUtil
 		throws IOException, InterruptedException
 	{
 		OS_TYPE os = getOSType();
-		
+
 		if (os == OS_TYPE.MAC_OS)
 		{
 			CommandExecutor uname = new CommandExecutor(new String[] { "uname", "-sr" });
-		    return uname.execute() + "; " + 
+		    return uname.execute() + "; " +
 		           System.getProperty("os.name") + " " + System.getProperty("os.version");
 		} else if (os == OS_TYPE.WINDOWS)
 		{
@@ -244,13 +277,13 @@ public class OSUtil
 	}
 
 
-	// Can be used to find zcashd/zcash-cli if it is not found in the same place as the wallet JAR
+	// Can be used to find komodod/komodo-cli if it is not found in the same place as the wallet JAR
 	// Null if not found
 	public static File findZCashCommand(String command)
 		throws IOException
 	{
 	    File f;
-	    
+
 	    // Try with system property zcash.location.dir - may be specified by caller
 	    String ZCashLocationDir = System.getProperty("zcash.location.dir");
 	    if ((ZCashLocationDir != null) && (ZCashLocationDir.trim().length() > 0))
@@ -261,9 +294,9 @@ public class OSUtil
 	            return f.getCanonicalFile();
 	        }
 	    }
-	    
+
 	    OS_TYPE os = getOSType();
-	    
+
 	    if (isUnixLike(os))
 	    {
 	    	// The following search directories apply to UNIX-like systems only
@@ -272,13 +305,13 @@ public class OSUtil
 				"/usr/bin/", // Typical Ubuntu
 				"/bin/",
 				"/usr/local/bin/",
-				"/usr/local/zcash/bin/",
-				"/usr/lib/zcash/bin/",
+				"/usr/local/mnz/bin/",
+				"/usr/lib/mnz/bin/",
 				"/opt/local/bin/",
-				"/opt/local/zcash/bin/",
-				"/opt/zcash/bin/"
+				"/opt/local/mnz/bin/",
+				"/opt/mnz/bin/"
 			};
-	
+
 			for (String d : dirs)
 			{
 				f = new File(d + command);
@@ -287,17 +320,17 @@ public class OSUtil
 					return f;
 				}
 			}
-			
+
 	    } else if (os == OS_TYPE.WINDOWS)
 	    {
-	    	// A probable Windows directory is a ZCash dir in Program Files
+	    	// A probable Windows directory is a Komodo dir in Program Files
 	    	String programFiles = System.getenv("PROGRAMFILES");
 	    	if ((programFiles != null) && (!programFiles.isEmpty()))
 	    	{
 	    		File pf = new File(programFiles);
 	    		if (pf.exists() && pf.isDirectory())
 	    		{
-	    			File ZDir = new File(pf, "Zcash");
+	    			File ZDir = new File(pf, "Monaize");
 	    			if (ZDir.exists() && ZDir.isDirectory())
 	    			{
 	    				File cf = new File(ZDir, command);
@@ -309,17 +342,17 @@ public class OSUtil
 	    		}
 	    	}
 	    }
-		
+
 		// Try in the current directory
 		f = new File("." + File.separator + command);
 		if (f.exists() && f.isFile())
 		{
 			return f.getCanonicalFile();
 		}
-			
+
 
 		// TODO: Try to find it with which/PATH
-		
+
 		return null;
 	}
 }

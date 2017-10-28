@@ -55,6 +55,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.plaf.FontUIResource;
 
 import com.vaklinov.zcashui.OSUtil.OS_TYPE;
 import com.vaklinov.zcashui.ZCashClientCaller.NetworkAndBlockchainInfo;
@@ -69,7 +70,7 @@ import com.vaklinov.zcashui.ZCashInstallationObserver.InstallationDetectionExcep
  *
  * @author Ivan Vaklinov <ivan@vaklinov.com>
  */
-public class ZCashUI
+public class Komodo
     extends JFrame
 {
     private ZCashInstallationObserver installationObserver;
@@ -86,27 +87,28 @@ public class ZCashUI
     private JMenuItem menuItemImportKeys;
     private JMenuItem menuItemShowPrivateKey;
     private JMenuItem menuItemImportOnePrivateKey;
+    private JMenuItem menuItemImportSeed;
 
     private DashboardPanel   dashboard;
     private AddressesPanel   addresses;
     private SendCashPanel    sendPanel;
     private AddressBookPanel addressBookPanel;
-    
+
     JTabbedPane tabs;
 
-    public ZCashUI(StartupProgressDialog progressDialog)
+    public Komodo(StartupProgressDialog progressDialog)
         throws IOException, InterruptedException, WalletCallException
     {
-        super("Swing Wallet UI for ZCash\u00AE - 0.73 (beta)");
-        
+        super("MNZ Wallet 0.8.0 (beta)");
+
         if (progressDialog != null)
         {
         	progressDialog.setProgressText("Starting GUI wallet...");
         }
-        
+
         ClassLoader cl = this.getClass().getClassLoader();
 
-        this.setIconImage(new ImageIcon(cl.getResource("images/zcash-logo-large.png")).getImage());
+        this.setIconImage(new ImageIcon(cl.getResource("images/mnz-logo-large.png")).getImage());
 
         Container contentPane = this.getContentPane();
 
@@ -125,7 +127,7 @@ public class ZCashUI
         tabs.addTab("Own addresses ",
         		    new ImageIcon(cl.getResource("images/own-addresses.png")),
         		    addresses = new AddressesPanel(clientCaller, errorReporter));
-        tabs.addTab("Send cash ",
+        tabs.addTab("Send MNZ ",
         		    new ImageIcon(cl.getResource("images/send.png")),
         		    sendPanel = new SendCashPanel(clientCaller, errorReporter));
         tabs.addTab("Address book ",
@@ -163,19 +165,21 @@ public class ZCashUI
         wallet.add(menuItemShowPrivateKey = new JMenuItem("Show private key...", KeyEvent.VK_P));
         menuItemShowPrivateKey.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, accelaratorKeyMask));
         wallet.add(menuItemImportOnePrivateKey = new JMenuItem("Import one private key...", KeyEvent.VK_N));
-        menuItemImportOnePrivateKey.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, accelaratorKeyMask));        
+        menuItemImportOnePrivateKey.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, accelaratorKeyMask));
+        wallet.add(menuItemImportSeed = new JMenuItem("Import iguana/barterDEX passphrase...", KeyEvent.VK_S));
+        menuItemImportSeed.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, accelaratorKeyMask));
         mb.add(wallet);
 
         // Some day the extras menu will be populated with less essential funcitons
         //JMenu extras = new JMenu("Extras");
         //extras.setMnemonic(KeyEvent.VK_ NOT R);
         //extras.add(menuItemAddressBook = new JMenuItem("Address book...", KeyEvent.VK_D));
-        //menuItemAddressBook.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, accelaratorKeyMask));        
+        //menuItemAddressBook.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, accelaratorKeyMask));
         //mb.add(extras);
 
         // TODO: Temporarily disable encryption until further notice - Oct 24 2016
         menuItemEncrypt.setEnabled(false);
-                        
+
         this.setJMenuBar(mb);
 
         // Add listeners etc.
@@ -185,7 +189,7 @@ public class ZCashUI
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    ZCashUI.this.exitProgram();
+                    Komodo.this.exitProgram();
                 }
             }
         );
@@ -198,83 +202,94 @@ public class ZCashUI
                 {
                 	try
                 	{
-                		AboutDialog ad = new AboutDialog(ZCashUI.this);
+                		AboutDialog ad = new AboutDialog(Komodo.this);
                 		ad.setVisible(true);
                 	} catch (UnsupportedEncodingException uee)
                 	{
-                		Log.error("Unexpected error: ", uee);
-                		ZCashUI.this.errorReporter.reportError(uee);
+                		uee.printStackTrace();
+                		Komodo.this.errorReporter.reportError(uee);
                 	}
                 }
             }
         );
 
-        menuItemBackup.addActionListener(   
+        menuItemBackup.addActionListener(
         	new ActionListener()
             {
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    ZCashUI.this.walletOps.backupWallet();
+                    Komodo.this.walletOps.backupWallet();
                 }
             }
         );
-        
+
         menuItemEncrypt.addActionListener(
             new ActionListener()
             {
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    ZCashUI.this.walletOps.encryptWallet();
+                    Komodo.this.walletOps.encryptWallet();
                 }
             }
         );
 
-        menuItemExportKeys.addActionListener(   
+        menuItemExportKeys.addActionListener(
             new ActionListener()
             {
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    ZCashUI.this.walletOps.exportWalletPrivateKeys();
+                    Komodo.this.walletOps.exportWalletPrivateKeys();
                 }
             }
        );
-        
-       menuItemImportKeys.addActionListener(   
+
+       menuItemImportKeys.addActionListener(
             new ActionListener()
             {
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    ZCashUI.this.walletOps.importWalletPrivateKeys();
+                    Komodo.this.walletOps.importWalletPrivateKeys();
                 }
             }
        );
-       
-       menuItemShowPrivateKey.addActionListener(   
+
+       menuItemShowPrivateKey.addActionListener(
             new ActionListener()
             {
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    ZCashUI.this.walletOps.showPrivateKey();
+                    Komodo.this.walletOps.showPrivateKey();
                 }
             }
        );
-       
-       menuItemImportOnePrivateKey.addActionListener(   
+
+       menuItemImportOnePrivateKey.addActionListener(
            new ActionListener()
            {
                @Override
                public void actionPerformed(ActionEvent e)
                {
-                   ZCashUI.this.walletOps.importSinglePrivateKey();
+                   Komodo.this.walletOps.importSinglePrivateKey();
                }
            }
        );
-       
+
+       menuItemImportSeed.addActionListener(
+           new ActionListener()
+           {
+               @Override
+               public void actionPerformed(ActionEvent e)
+               {
+                   Komodo.this.walletOps.importSeed();
+               }
+           }
+       );
+
         // Close operation
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         this.addWindowListener(new WindowAdapter()
@@ -282,7 +297,7 @@ public class ZCashUI
             @Override
             public void windowClosing(WindowEvent e)
             {
-                ZCashUI.this.exitProgram();
+                Komodo.this.exitProgram();
             }
         });
 
@@ -306,17 +321,17 @@ public class ZCashUI
                 } catch (IOException ioe)
                 {
                     /* TODO: report exceptions to the user */
-                	Log.error("Unexpected error: ", ioe);
+                    ioe.printStackTrace();
                 }
 
                 JOptionPane.showMessageDialog(
-                    ZCashUI.this.getRootPane().getParent(),
-                    "The ZCash GUI Wallet is currently considered experimental. Use of this software\n" +
+                    Komodo.this.getRootPane().getParent(),
+                    "The MonaizeToken GUI Wallet is currently considered experimental. Use of this software\n" +
                     "comes at your own risk! Be sure to read the list of known issues and limitations\n" +
                     "at this page: https://github.com/vaklinov/zcash-swing-wallet-ui\n\n" +
                     "This program is not officially endorsed by or associated with the ZCash project\n" +
                     "and the ZCash company. ZCash and the ZCash logo are trademarks of the\n" +
-                    "Zerocoin Electric Coin Company.\n\n"+ 
+                    "Zerocoin Electric Coin Company.\n\n"+
                     "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n" +
                     "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n" +
                     "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n" +
@@ -328,7 +343,7 @@ public class ZCashUI
                     "Disclaimer", JOptionPane.INFORMATION_MESSAGE);
             }
         });
-        
+
         // Finally dispose of the progress dialog
         if (progressDialog != null)
         {
@@ -338,25 +353,25 @@ public class ZCashUI
 
     public void exitProgram()
     {
-    	Log.info("Exiting ...");
+        System.out.println("Exiting ...");
 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        
+
         this.dashboard.stopThreadsAndTimers();
         this.addresses.stopThreadsAndTimers();
         this.sendPanel.stopThreadsAndTimers();
 
 //        Integer blockchainProgress = this.dashboard.getBlockchainPercentage();
-//        
+//
 //        if ((blockchainProgress != null) && (blockchainProgress >= 100))
 //        {
 //	        this.dashboard.waitForEndOfThreads(3000);
 //	        this.addresses.waitForEndOfThreads(3000);
 //	        this.sendPanel.waitForEndOfThreads(3000);
 //        }
-        
-        ZCashUI.this.setVisible(false);
-        ZCashUI.this.dispose();
+
+        Komodo.this.setVisible(false);
+        Komodo.this.dispose();
 
         System.exit(0);
     }
@@ -367,12 +382,12 @@ public class ZCashUI
         try
         {
         	OS_TYPE os = OSUtil.getOSType();
-        	
-        	Log.info("Starting ZCash Swing Wallet ...");
-        	Log.info("OS: " + System.getProperty("os.name") + " = " + os);
-        	Log.info("Current directory: " + new File(".").getCanonicalPath());
-        	Log.info("Class path: " + System.getProperty("java.class.path"));
-        	Log.info("Environment PATH: " + System.getenv("PATH"));
+
+            System.out.println("Starting MNZ Swing Wallet ...");
+            System.out.println("OS: " + System.getProperty("os.name") + " = " + os);
+            System.out.println("Current directory: " + new File(".").getCanonicalPath());
+            System.out.println("Class path: " + System.getProperty("java.class.path"));
+            System.out.println("Environment PATH: " + System.getenv("PATH"));
 
             // Look and feel settings - for now a custom OS-look and feel is set for Windows,
             // Mac OS will follow later.
@@ -380,15 +395,15 @@ public class ZCashUI
             {
             	// Custom Windows L&F and font settings
             	UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-            	
+
             	// This font looks good but on Windows 7 it misses some chars like the stars...
             	//FontUIResource font = new FontUIResource("Lucida Sans Unicode", Font.PLAIN, 11);
             	//UIManager.put("Table.font", font);
             } else
-            {            
+            {
 	            for (LookAndFeelInfo ui : UIManager.getInstalledLookAndFeels())
 	            {
-	            	Log.info("Available look and feel: " + ui.getName() + " " + ui.getClassName());
+	                System.out.println("Available look and feel: " + ui.getName() + " " + ui.getClassName());
 	                if (ui.getName().equals("Nimbus"))
 	                {
 	                    UIManager.setLookAndFeel(ui.getClassName());
@@ -396,14 +411,14 @@ public class ZCashUI
 	                };
 	            }
             }
-            
+
             // If zcashd is currently not running, do a startup of the daemon as a child process
             // It may be started but not ready - then also show dialog
-            ZCashInstallationObserver initialInstallationObserver = 
+            ZCashInstallationObserver initialInstallationObserver =
             	new ZCashInstallationObserver(OSUtil.getProgramDirectory());
             DaemonInfo zcashdInfo = initialInstallationObserver.getDaemonInfo();
             initialInstallationObserver = null;
-            
+
             ZCashClientCaller initialClientCaller = new ZCashClientCaller(OSUtil.getProgramDirectory());
             boolean daemonStartInProgress = false;
             try
@@ -414,7 +429,7 @@ public class ZCashUI
             		// If more than 20 minutes behind in the blockchain - startup in progress
             		if ((System.currentTimeMillis() - info.lastBlockDate.getTime()) > (20 * 60 * 1000))
             		{
-            			Log.info("Current blockchain synchronization date is"  + 
+            			System.out.println("Current blockchain synchronization date is"  +
             		                       new Date(info.lastBlockDate.getTime()));
             			daemonStartInProgress = true;
             		}
@@ -424,29 +439,29 @@ public class ZCashUI
                 if ((wce.getMessage().indexOf("{\"code\":-28") != -1) || // Started but not ready
                 	(wce.getMessage().indexOf("error code: -28") != -1))
                 {
-                	Log.info("zcashd is currently starting...");
+                	System.out.println("mnzd is currently starting...");
                 	daemonStartInProgress = true;
                 }
             }
-            
+
             StartupProgressDialog startupBar = null;
             if ((zcashdInfo.status != DAEMON_STATUS.RUNNING) || (daemonStartInProgress))
             {
-            	Log.info(
-            		"zcashd is not runing at the moment or has not started/synchronized 100% - showing splash...");
+            	System.out.println(
+            		"mnzd is not runing at the moment or has not started/synchronized 100% - showing splash...");
 	            startupBar = new StartupProgressDialog(initialClientCaller);
 	            startupBar.setVisible(true);
 	            startupBar.waitForStartup();
             }
             initialClientCaller = null;
-            
+
             // Main GUI is created here
-            ZCashUI ui = new ZCashUI(startupBar);
+            Komodo ui = new Komodo(startupBar);
             ui.setVisible(true);
 
         } catch (InstallationDetectionException ide)
         {
-        	Log.error("Unexpected error: ", ide);
+            ide.printStackTrace();
             JOptionPane.showMessageDialog(
                 null,
                 "This program was started in directory: " + OSUtil.getProgramDirectory() + "\n" +
@@ -457,14 +472,14 @@ public class ZCashUI
             System.exit(1);
         } catch (WalletCallException wce)
         {
-        	Log.error("Unexpected error: ", wce);
+            wce.printStackTrace();
 
             if ((wce.getMessage().indexOf("{\"code\":-28,\"message\"") != -1) ||
             	(wce.getMessage().indexOf("error code: -28") != -1))
             {
                 JOptionPane.showMessageDialog(
                         null,
-                        "It appears that zcashd has been started but is not ready to accept wallet\n" +
+                        "It appears that komodod has been started but is not ready to accept wallet\n" +
                         "connections. It is still loading the wallet and blockchain. Please try to \n" +
                         "start the GUI wallet later...",
                         "Wallet communication error",
@@ -473,9 +488,9 @@ public class ZCashUI
             {
                 JOptionPane.showMessageDialog(
                     null,
-                    "There was a problem communicating with the ZCash daemon/wallet. \n" +
-                    "Please ensure that the ZCash server zcashd is started (e.g. via \n" + 
-                    "command  \"zcashd --daemon\"). Error message is: \n" +
+                    "There was a problem communicating with the MNZ daemon/wallet. \n" +
+                    "Please ensure that the MNZ server komodod is started (e.g. via \n" +
+                    "command  \"mnzd --daemon\"). Error message is: \n" +
                      wce.getMessage() +
                     "See the console output for more detailed error information!",
                     "Wallet communication error",
@@ -485,7 +500,7 @@ public class ZCashUI
             System.exit(2);
         } catch (Exception e)
         {
-        	Log.error("Unexpected error: ", e);
+            e.printStackTrace();
             JOptionPane.showMessageDialog(
                 null,
                 "A general unexpected critical error has occurred: \n" + e.getMessage() + "\n" +
@@ -493,17 +508,6 @@ public class ZCashUI
                 "Error",
                 JOptionPane.ERROR_MESSAGE);
             System.exit(3);
-        }  catch (Error err)
-        {
-        	// Last resort catch for unexpected problems - just to inform the user
-        	Log.error("Unexpected unrecovverable error: ", err);
-            JOptionPane.showMessageDialog(
-                null,
-                "A general unexpected critical/unrecoverable error has occurred: \n" + err.getMessage() + "\n" +
-                "See the console output for more detailed error information!",
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
-            System.exit(4);
         }
     }
 }

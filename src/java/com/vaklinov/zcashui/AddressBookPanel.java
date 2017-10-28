@@ -3,7 +3,6 @@
 package com.vaklinov.zcashui;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -43,11 +42,10 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableColumnModel;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 public class AddressBookPanel extends JPanel {
-    
+
     private static class AddressBookEntry {
         final String name,address;
         AddressBookEntry(String name, String address) {
@@ -55,49 +53,48 @@ public class AddressBookPanel extends JPanel {
             this.address = address;
         }
     }
-    
+
     private final List<AddressBookEntry> entries =
             new ArrayList<>();
 
     private final Set<String> names = new HashSet<>();
-    
+
     private JTable table;
-    
+
     private JButton sendCashButton, deleteContactButton,copyToClipboardButton;
-    
+
     private final SendCashPanel sendCashPanel;
     private final JTabbedPane tabs;
-    
+
     private JPanel buildButtonsPanel() {
         JPanel panel = new JPanel();
         panel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
         panel.setLayout(new FlowLayout(FlowLayout.CENTER, 3, 3));
-        
+
         JButton newContactButton = new JButton("New contact...");
         newContactButton.addActionListener(new NewContactActionListener());
         panel.add(newContactButton);
-                
-        sendCashButton = new JButton("Send ZCash");
+
+        sendCashButton = new JButton("Send MNZ");
         sendCashButton.addActionListener(new SendCashActionListener());
         sendCashButton.setEnabled(false);
         panel.add(sendCashButton);
-        
+
         copyToClipboardButton = new JButton("Copy address to clipboard");
         copyToClipboardButton.setEnabled(false);
         copyToClipboardButton.addActionListener(new CopyToClipboardActionListener());
         panel.add(copyToClipboardButton);
-        
+
         deleteContactButton = new JButton("Delete contact");
         deleteContactButton.setEnabled(false);
         deleteContactButton.addActionListener(new DeleteAddressActionListener());
         panel.add(deleteContactButton);
-        
+
         return panel;
     }
 
     private JScrollPane buildTablePanel() {
         table = new JTable(new AddressBookTableModel(),new DefaultTableColumnModel());
-                
         TableColumn nameColumn = new TableColumn(0);
         TableColumn addressColumn = new TableColumn(1);
         table.addColumn(nameColumn);
@@ -105,12 +102,6 @@ public class AddressBookPanel extends JPanel {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // one at a time
         table.getSelectionModel().addListSelectionListener(new AddressListSelectionListener());
         table.addMouseListener(new AddressMouseListener());
-        
-        // TODO: isolate in utility
-		TableCellRenderer renderer = table.getCellRenderer(0, 0);
-		Component comp = renderer.getTableCellRendererComponent(table, "123", false, false, 0, 0);
-		table.setRowHeight(new Double(comp.getPreferredSize().getHeight()).intValue() + 2);
-        
         JScrollPane scrollPane = new JScrollPane(table);
         return scrollPane;
     }
@@ -122,10 +113,10 @@ public class AddressBookPanel extends JPanel {
         setLayout(boxLayout);
         add(buildTablePanel());
         add(buildButtonsPanel());
-       
+
         loadEntriesFromDisk();
     }
-    
+
     private void loadEntriesFromDisk() throws IOException {
         File addressBookFile = new File(OSUtil.getSettingsDirectory(),"addressBook.csv");
         if (!addressBookFile.exists())
@@ -144,24 +135,25 @@ public class AddressBookPanel extends JPanel {
                 entries.add(new AddressBookEntry(name,address));
             }
         }
-        
-        Log.info("loaded "+entries.size()+" address book entries");
+
+        System.out.println("loaded "+entries.size()+" address book entries");
     }
-    
+
     private void saveEntriesToDisk() {
-    	Log.info("Saving "+entries.size()+" addresses");
+    	System.out.println("Saving "+entries.size()+" addresses");
         try {
             File addressBookFile = new File(OSUtil.getSettingsDirectory(),"addressBook.csv");
             try (PrintWriter printWriter = new PrintWriter(new FileWriter(addressBookFile))) {
-                for (AddressBookEntry entry : entries) 
+                for (AddressBookEntry entry : entries)
                     printWriter.println(entry.address+","+entry.name);
             }
         } catch (IOException bad) {
         	// TODO: report error to the user!
-        	Log.error("Saving Address Book Failed!!!!", bad);
+        	bad.printStackTrace();
+        	System.out.println("Saving Address Book Failed!!!!");
         }
     }
-    
+
     private class DeleteAddressActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             int row = table.getSelectedRow();
@@ -181,7 +173,7 @@ public class AddressBookPanel extends JPanel {
             });
         }
     }
-    
+
     private class CopyToClipboardActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             int row = table.getSelectedRow();
@@ -192,7 +184,7 @@ public class AddressBookPanel extends JPanel {
             clipboard.setContents(new StringSelection(entry.address), null);
         }
     }
-    
+
     private class NewContactActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             String name = (String) JOptionPane.showInputDialog(AddressBookPanel.this,
@@ -207,7 +199,7 @@ public class AddressBookPanel extends JPanel {
 
             // TODO: check for dupes
             names.add(name);
-            
+
             String address = (String) JOptionPane.showInputDialog(AddressBookPanel.this,
                     "Pleae enter the t-address or z-address of "+name,
                     "Add new contact step 2",
@@ -218,19 +210,19 @@ public class AddressBookPanel extends JPanel {
             if (address == null || "".equals(address))
                 return; // cancelled
             entries.add(new AddressBookEntry(name,address));
-            
+
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     table.invalidate();
                     table.revalidate();
                     table.repaint();
-                	
+
                     saveEntriesToDisk();
                 }
             });
         }
     }
-    
+
     private class SendCashActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             int row = table.getSelectedRow();
@@ -253,34 +245,26 @@ public class AddressBookPanel extends JPanel {
             int column = table.columnAtPoint(e.getPoint());
             table.changeSelection(row, column, false, false);
             AddressBookEntry entry = entries.get(row);
-            
+
             JPopupMenu menu = new JPopupMenu();
-            
-            JMenuItem sendCash = new JMenuItem("Send Zcash to "+entry.name);
+
+            JMenuItem sendCash = new JMenuItem("Send MNZ to "+entry.name);
             sendCash.addActionListener(new SendCashActionListener());
             menu.add(sendCash);
-            
+
             JMenuItem copyAddress = new JMenuItem("Copy address to clipboard");
             copyAddress.addActionListener(new CopyToClipboardActionListener());
             menu.add(copyAddress);
-            
+
             JMenuItem deleteEntry = new JMenuItem("Delete "+entry.name+" from contacts");
             deleteEntry.addActionListener(new DeleteAddressActionListener());
             menu.add(deleteEntry);
-            
+
             menu.show(e.getComponent(), e.getPoint().x, e.getPoint().y);
             e.consume();
         }
-        
-        public void mouseReleased(MouseEvent e)
-        {
-        	if ((!e.isConsumed()) && e.isPopupTrigger())
-        	{
-        		mousePressed(e);
-        	}
-        }
     }
-    
+
     private class AddressListSelectionListener implements ListSelectionListener {
 
         @Override
@@ -293,13 +277,13 @@ public class AddressBookPanel extends JPanel {
                 return;
             }
             String name = entries.get(row).name;
-            sendCashButton.setText("Send Zcash to "+name);
+            sendCashButton.setText("Send MNZ to "+name);
             sendCashButton.setEnabled(true);
             deleteContactButton.setText("Delete contact "+name);
             deleteContactButton.setEnabled(true);
             copyToClipboardButton.setEnabled(true);
         }
-        
+
     }
 
     private class AddressBookTableModel extends AbstractTableModel {

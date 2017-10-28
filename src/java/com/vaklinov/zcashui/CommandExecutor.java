@@ -1,11 +1,11 @@
 /************************************************************************************************
- *  _________          _     ____          _           __        __    _ _      _   _   _ ___ 
+ *  _________          _     ____          _           __        __    _ _      _   _   _ ___
  * |__  / ___|__ _ ___| |__ / ___|_      _(_)_ __   __ \ \      / /_ _| | | ___| |_| | | |_ _|
- *   / / |   / _` / __| '_ \\___ \ \ /\ / / | '_ \ / _` \ \ /\ / / _` | | |/ _ \ __| | | || | 
- *  / /| |__| (_| \__ \ | | |___) \ V  V /| | | | | (_| |\ V  V / (_| | | |  __/ |_| |_| || | 
+ *   / / |   / _` / __| '_ \\___ \ \ /\ / / | '_ \ / _` \ \ /\ / / _` | | |/ _ \ __| | | || |
+ *  / /| |__| (_| \__ \ | | |___) \ V  V /| | | | | (_| |\ V  V / (_| | | |  __/ |_| |_| || |
  * /____\____\__,_|___/_| |_|____/ \_/\_/ |_|_| |_|\__, | \_/\_/ \__,_|_|_|\___|\__|\___/|___|
- *                                                 |___/                                      
- *                                       
+ *                                                 |___/
+ *
  * Copyright (c) 2016 Ivan Vaklinov <ivan@vaklinov.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -14,10 +14,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,32 +37,33 @@ import java.io.Reader;
 
 /**
  * Executes a command and retruns the result.
- * 
+ *
  * @author Ivan Vaklinov <ivan@vaklinov.com>
  */
-public class CommandExecutor 
-{	
+public class CommandExecutor
+{
 	private String args[];
-	
+
 	public CommandExecutor(String args[])
 		throws IOException
 	{
+		//System.out.println(args);
 		this.args = args;
-	}		
-	
-	
-	public Process startChildProcess() 
-		throws IOException 
+	}
+
+
+	public Process startChildProcess()
+		throws IOException
 	{
 	    return Runtime.getRuntime().exec(args);
 	}
-	
-	
+
+
 	public String execute()
 		throws IOException, InterruptedException
 	{
 		final StringBuffer result = new StringBuffer();
-		
+
 		Runtime rt = Runtime.getRuntime();
 		Process proc = rt.exec(args);
 
@@ -71,15 +72,15 @@ public class CommandExecutor
 		final Reader err = new InputStreamReader(proc.getErrorStream());
 
 		Thread inThread = new Thread(
-			new Runnable() 
-			{	
+			new Runnable()
+			{
 				@Override
 				public void run()
 				{
 					try
 					{
 						int c;
-						while ((c = in.read()) != -1) 
+						while ((c = in.read()) != -1)
 						{
 						    result.append((char)c);
 						}
@@ -93,15 +94,15 @@ public class CommandExecutor
 		inThread.start();
 
 		Thread errThread =  new Thread(
-			new Runnable() 
-			{	
+			new Runnable()
+			{
 			    @Override
-				public void run() 
+				public void run()
 				{
-			    	try 
+			    	try
 				    {
 						int c;
-						while ((c = err.read()) != -1) 
+						while ((c = err.read()) != -1)
 						{
 							result.append((char)c);
 						}
@@ -113,11 +114,11 @@ public class CommandExecutor
 			}
 		);
 		errThread.start();
-		
+
 		proc.waitFor();
 		inThread.join();
 		errThread.join();
-		
+
 		return result.toString();
 	}
 }
