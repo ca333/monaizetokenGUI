@@ -5,7 +5,7 @@
 This program provides a Graphical User Interface (GUI) for the MNZ client tools that acts as a wrapper and
 presents the information in a user-friendly manner.
 
-![Screenshot](https://github.com/ca333/monaizetokenGUIraw/master/docs/mnzgui.jpg "Main Window")
+![Screenshot](https://github.com/ca333/monaizetokenGUI/raw/master/docs/mnzgui.jpg "Main Window")
 
 ## Building, installing and running the Wallet GUI
 
